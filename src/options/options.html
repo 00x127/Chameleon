@@ -1,0 +1,117 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Chameleon - Settings</title>
+  <link rel="stylesheet" href="options.css">
+</head>
+<body>
+  <main>
+    <h1>Chameleon</h1>
+    <p class="lede">Anti-fingerprinting for Firefox. Per-origin deterministic noise; nothing leaves the browser.</p>
+
+    <section class="enable-bar">
+      <div>
+        <div class="label">Protection</div>
+        <div class="hint">Master switch. Turn off to disable globally without losing your settings.</div>
+      </div>
+      <label class="switch">
+        <input type="checkbox" id="enabled">
+        <span class="slider"></span>
+      </label>
+    </section>
+
+    <section>
+      <h2>Browser identity</h2>
+      <div class="field">
+        <label for="uaProfile">Profile</label>
+        <select id="uaProfile">
+          <option value="auto">Auto (different OS per site)</option>
+          <option value="firefox-linux">Firefox on Linux</option>
+          <option value="firefox-windows">Firefox on Windows</option>
+          <option value="firefox-mac">Firefox on macOS</option>
+        </select>
+        <p class="hint">Auto picks Linux, Windows, or macOS per site so cross-site comparison cant match on OS. Pick a fixed profile if you want every site to see the same one.</p>
+      </div>
+
+      <div class="row">
+        <label>Rewrite request headers (User-Agent, Accept-Language, drop UA-CH)</label>
+        <input type="checkbox" id="rewriteHeaders">
+      </div>
+
+      <div class="row">
+        <label>Strip Referer on cross-origin requests (hides where you came from)</label>
+        <input type="checkbox" id="stripReferer">
+      </div>
+
+      <div class="row">
+        <label>Spoof navigator.userAgent and friends</label>
+        <input type="checkbox" id="spoofUserAgent">
+      </div>
+    </section>
+
+    <section>
+      <h2>Surfaces</h2>
+      <div class="row">
+        <label>Round high-resolution timers (performance.now, event.timeStamp)</label>
+        <input type="checkbox" id="reduceTimerPrecision">
+      </div>
+      <div class="row">
+        <label>Pin timezone to UTC, hide local offset</label>
+        <input type="checkbox" id="spoofTimezone">
+      </div>
+      <div class="row">
+        <label>Block motion / orientation / generic sensor APIs</label>
+        <input type="checkbox" id="blockSensors">
+      </div>
+    </section>
+
+    <section>
+      <h2>Exempt origins</h2>
+      <p class="hint">eTLD+1 entries, one per line. Protection is fully disabled for these sites.</p>
+      <textarea id="exemptDomains" rows="6" placeholder="example.com&#10;intranet.local"></textarea>
+    </section>
+
+    <section class="actions">
+      <button id="save">Save</button>
+      <button id="reset" class="warn">Reset and rotate identity</button>
+      <span id="saved"></span>
+    </section>
+
+    <section class="about">
+      <h2>What this blocks</h2>
+      <ul>
+        <li>Canvas 2D readback (toDataURL, toBlob, getImageData), per-pixel LSB noise keyed to origin</li>
+        <li>WebGL / WebGL2 parameter spoofing, readPixels noising, getShaderPrecisionFormat normalisation</li>
+        <li>WebGPU hidden entirely (navigator.gpu returns undefined)</li>
+        <li>AudioBuffer / AnalyserNode readouts (sparse float perturbation, inaudible)</li>
+        <li>TextMetrics, getBoundingClientRect, getClientRects, offsetWidth/Height, scrollWidth/Height (sub-pixel jitter)</li>
+        <li>FontFaceSet.check coerced to a stable common-fonts answer</li>
+        <li>Screen dimensions, devicePixelRatio, outer dimensions, screenX/Y</li>
+        <li>Navigator: userAgent, platform, oscpu, vendor, hardwareConcurrency (8), deviceMemory (8), languages, plugins, mimeTypes, maxTouchPoints, userAgentData</li>
+        <li>NetworkInformation, Battery, Storage estimate, MediaCapabilities, mediaDevices.enumerateDevices</li>
+        <li>SpeechSynthesis.getVoices</li>
+        <li>matchMedia for prefers-color-scheme, prefers-reduced-motion, prefers-contrast, forced-colors, pointer, hover, color-gamut, dynamic-range</li>
+        <li>WebRTC ICE host / srflx candidate suppression (local IP leak); relay candidates kept so video calls work</li>
+        <li>Permissions API normalised</li>
+        <li>Motion, orientation, generic sensor APIs blocked</li>
+        <li>Bluetooth, HID, Serial, USB, Wake Lock, Ink, Clipboard surfaces hidden</li>
+        <li>indexedDB.databases() list, navigator.getGamepads()</li>
+        <li>Worker constructor wraps remote scripts and installs hooks inside the worker scope</li>
+        <li>Web MIDI: requestMIDIAccess rejected, MIDIAccess and related globals hidden</li>
+        <li>Ad-blocker detection bypass: bait elements report non-zero dimensions, common detection globals pre-populated, so paywall nags don't trigger</li>
+        <li>Firefox quirks (InstallTrigger, mozInnerScreenX/Y, netscape, sidebar, CSS.supports moz prefixes) hidden so feature detection cant confirm Firefox</li>
+        <li>Font enumeration locked down: FontFaceSet (size, iteration, check, has, forEach), navigator.fonts.query, window.queryLocalFonts blocked. Canvas measureText returns fallback widths for non-standard fonts so JS-attribute font detection fails. Visual rendering of custom fonts is preserved.</li>
+        <li>Cross-origin Referer stripped, Origin replaced with destination origin on cross-site requests</li>
+        <li>HTTP layer: User-Agent, Accept-Language, Sec-CH-UA family, Accept-CH, NEL/Report-To, Save-Data, Device-Memory</li>
+        <li>Timer precision: performance.now, Date.now, event.timeStamp, requestAnimationFrame callback ts, PerformanceEntry, PerformanceTiming</li>
+        <li>Intl normalisation: NumberFormat, Collator, RelativeTimeFormat, PluralRules, ListFormat, DisplayNames, Segmenter all report en-US / latin / gregory</li>
+        <li>Timezone pinned to UTC (offset only, not the wall clock)</li>
+        <li>PaymentRequest, file pickers, error stack scrubbing</li>
+        <li>Function.prototype.toString camouflage so hooks read as native code</li>
+      </ul>
+    </section>
+  </main>
+  <script src="options.js"></script>
+</body>
+</html>

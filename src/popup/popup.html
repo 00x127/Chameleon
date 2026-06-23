@@ -1,0 +1,46 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <header>
+    <h1>Chameleon</h1>
+    <span id="status" class="pill"></span>
+  </header>
+
+  <section class="row">
+    <div>
+      <div class="label">Protection</div>
+      <div class="hint" id="site">-</div>
+    </div>
+    <label class="switch">
+      <input type="checkbox" id="enabled">
+      <span class="slider"></span>
+    </label>
+  </section>
+
+  <section class="row">
+    <div>
+      <div class="label">Exempt this site</div>
+      <div class="hint">Disable for the current eTLD+1</div>
+    </div>
+    <label class="switch">
+      <input type="checkbox" id="exempt">
+      <span class="slider"></span>
+    </label>
+  </section>
+
+  <section>
+    <button id="rotate" class="action">Rotate identity</button>
+    <button id="settings" class="action ghost">Settings…</button>
+  </section>
+
+  <footer>
+    <a href="https://github.com/00x127/chameleon" target="_blank">source</a>
+  </footer>
+
+  <script src="popup.js"></script>
+</body>
+</html>
