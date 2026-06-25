@@ -158,8 +158,6 @@ browser.runtime.onMessage.addListener(async (msg, sender) => {
   }
 });
 
-// these headers either expose hardware/network info directly or
-// invite the server to ask for more via Accept-CH negotiation. nuke them.
 const dropRequestHeaders = new Set([
   "sec-ch-ua", "sec-ch-ua-mobile", "sec-ch-ua-platform", "sec-ch-ua-platform-version",
   "sec-ch-ua-arch", "sec-ch-ua-bitness", "sec-ch-ua-full-version", "sec-ch-ua-full-version-list",
@@ -194,16 +192,6 @@ function rewriteRequest(details) {
     const name = h.name.toLowerCase();
     if (dropRequestHeaders.has(name)) continue;
     if (name === "referer" && stripReferer) continue;
-    if (name === "origin" && stripReferer) {
-      // Origin header on cross-origin requests also leaks the source page.
-      // some servers reject requests without Origin entirely, so
-      // we replace rather than strip, pointing at the destination origin
-      // which is effectively saying "self-initiated"
-      try {
-        out.push({ name: h.name, value: new URL(details.url).origin });
-      } catch (_) {}
-      continue;
-    }
     if (name === "user-agent" && settings.spoofUserAgent) {
       out.push({ name: h.name, value: profile.ua });
       sawUA = true;
@@ -227,12 +215,12 @@ function rewriteRequest(details) {
 }
 
 const dropResponseHeaders = new Set([
-  "accept-ch", // server asking us to send client hints next time. no.
+  "accept-ch",
   "critical-ch",
   "report-to",
   "reporting-endpoints",
   "permissions-policy-report-only",
-  "nel"         
+  "nel"
 ]);
 
 function scrubResponse(details) {
