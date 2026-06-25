@@ -166,6 +166,15 @@ const dropRequestHeaders = new Set([
 ]);
 
 
+const refererSafeHosts = new Set([
+  "challenges.cloudflare.com",
+  "cloudflare.com",
+  "hcaptcha.com",
+  "recaptcha.net",
+  "google.com",
+  "accounts.google.com"
+]);
+
 function isCrossOrigin(details) {
   if (!details.originUrl) return true;
   try {
@@ -177,6 +186,18 @@ function isCrossOrigin(details) {
   }
 }
 
+function shouldStripReferer(details) {
+  if (!settings.stripReferer) return false;
+  if (!isCrossOrigin(details)) return false;
+  try {
+    const host = new URL(details.url).hostname;
+    for (const safe of refererSafeHosts) {
+      if (host === safe || host.endsWith("." + safe)) return false;
+    }
+  } catch (_) {}
+  return true;
+}
+
 function rewriteRequest(details) {
   if (!settings.enabled || !settings.rewriteHeaders) return;
   if (isExempt(details.url)) return;
@@ -185,8 +206,8 @@ function rewriteRequest(details) {
   const profile = pickProfile(originFromDetails(details));
   const headers = details.requestHeaders;
   const out = [];
-  let sawUA = false, sawLang = false, sawDNT = false, sawGPC = false;
-  const stripReferer = settings.stripReferer && isCrossOrigin(details);
+  let sawUA = false, sawLang = false;
+  const stripReferer = shouldStripReferer(details);
 
   for (const h of headers) {
     const name = h.name.toLowerCase();
@@ -202,15 +223,11 @@ function rewriteRequest(details) {
       sawLang = true;
       continue;
     }
-    if (name === "dnt") { sawDNT = true; out.push({ name: h.name, value: "1" }); continue; }
-    if (name === "sec-gpc") { sawGPC = true; out.push({ name: h.name, value: "1" }); continue; }
     out.push(h);
   }
 
   if (!sawUA && settings.spoofUserAgent) out.push({ name: "User-Agent", value: profile.ua });
   if (!sawLang) out.push({ name: "Accept-Language", value: profile.acceptLang });
-  if (!sawDNT) out.push({ name: "DNT", value: "1" });
-  if (!sawGPC) out.push({ name: "Sec-GPC", value: "1" });
   return { requestHeaders: out };
 }
 

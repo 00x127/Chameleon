@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Chameleon",
-  "version": "0.1.4",
+  "version": "0.1.5",
   "description": "Quietly blunts every fingerprinting surface the modern web exposes, without breaking sites.",
   "author": "0x127",
   "browser_specific_settings": {
