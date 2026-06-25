@@ -7,7 +7,7 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/00x127/Chameleon/releases"><img src="https://img.shields.io/badge/version-0.1.4-7aa2f7?style=flat-square" alt="version"></a>
+  <a href="https://github.com/00x127/Chameleon/releases"><img src="https://img.shields.io/badge/version-0.1.5-7aa2f7?style=flat-square" alt="version"></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-9ece6a?style=flat-square" alt="MIT"></a>
   <img src="https://img.shields.io/badge/firefox-128%2B-e0af68?style=flat-square" alt="Firefox 128+">
 </p>
